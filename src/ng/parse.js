@@ -879,6 +879,7 @@ var getterFnCache = {};
  * Implementation of the "Black Hole" variant from:
  * - http://jsperf.com/angularjs-parse-getter/4
  * - http://jsperf.com/path-evaluation-simplified/7
+ * - http://jsperf.com/angularjs-sce-loop-rolling
  */
 function cspSafeGetterFn(key0, key1, key2, key3, key4, fullExp, options) {
 
