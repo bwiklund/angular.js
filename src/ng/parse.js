@@ -891,24 +891,25 @@ function cspSafeGetterFn(keys, fullExp, options) {
 
   return !options.unwrapPromises
       ? function cspSafeGetter(scope, locals) {
-          var pathVal = (locals && locals.hasOwnProperty(key[0])) ? locals : scope;
+          var pathVal = (locals && locals.hasOwnProperty(keys[0])) ? locals : scope;
 
           for( var i = 0; i < keysLength; i++ ){
-            if ( !keys[i] || pathVal === null || pathVal === undefined) return pathVal;
-            pathVal = pathVal[ keys[i] ];
+            var key = keys[i];
+            if ( !key || pathVal === null || pathVal === undefined) return pathVal;
+            pathVal = pathVal[ key ];
           }
 
           return pathVal;
         }
       : function cspSafePromiseEnabledGetter(scope, locals) {
-          var pathVal = (locals && locals.hasOwnProperty(key[0])) ? locals : scope,
+          var pathVal = (locals && locals.hasOwnProperty(keys[0])) ? locals : scope,
               promise;
 
           for( var i = 0; i < keysLength; i++ ){
+            var key = keys[i];
+            if ( !key || pathVal === null || pathVal === undefined) return pathVal;
 
-            if ( !keys[i] || pathVal === null || pathVal === undefined) return pathVal;
-
-            pathVal = pathVal[ keys[i] ];
+            pathVal = pathVal[ key ];
             if (pathVal && pathVal.then) {
               promiseWarning(fullExp);
               if (!("$$v" in pathVal)) {
