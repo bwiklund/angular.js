@@ -881,19 +881,19 @@ var getterFnCache = {};
  * - http://jsperf.com/path-evaluation-simplified/7
  * - http://jsperf.com/angularjs-sce-loop-rolling
  */
-function cspSafeGetterFn(key0, key1, key2, key3, key4, fullExp, options) {
+function cspSafeGetterFn(keys, fullExp, options) {
 
-  var i, keys = [key0,key1,key2,key3,key4], keysLength = keys.length;
+  var keysLength = keys.length;
 
-  for( i = 0; i < keysLength; i++ ){
+  for( var i = 0; i < keysLength; i++ ){
     ensureSafeMemberName( keys[i] );
   }
 
   return !options.unwrapPromises
       ? function cspSafeGetter(scope, locals) {
-          var pathVal = (locals && locals.hasOwnProperty(key0)) ? locals : scope;
+          var pathVal = (locals && locals.hasOwnProperty(key[0])) ? locals : scope;
 
-          for( i = 0; i < keysLength; i++ ){
+          for( var i = 0; i < keysLength; i++ ){
             if ( !keys[i] || pathVal === null || pathVal === undefined) return pathVal;
             pathVal = pathVal[ keys[i] ];
           }
@@ -901,10 +901,10 @@ function cspSafeGetterFn(key0, key1, key2, key3, key4, fullExp, options) {
           return pathVal;
         }
       : function cspSafePromiseEnabledGetter(scope, locals) {
-          var pathVal = (locals && locals.hasOwnProperty(key0)) ? locals : scope,
+          var pathVal = (locals && locals.hasOwnProperty(key[0])) ? locals : scope,
               promise;
 
-          for( i = 0; i < keysLength; i++ ){
+          for( var i = 0; i < keysLength; i++ ){
 
             if ( !keys[i] || pathVal === null || pathVal === undefined) return pathVal;
 
@@ -933,26 +933,10 @@ function getterFn(path, options, fullExp) {
   }
 
   var pathKeys = path.split('.'),
-      pathKeysLength = pathKeys.length,
       fn;
 
   if (options.csp) {
-    if (pathKeysLength < 6) {
-      fn = cspSafeGetterFn(pathKeys[0], pathKeys[1], pathKeys[2], pathKeys[3], pathKeys[4], fullExp,
-                          options);
-    } else {
-      fn = function(scope, locals) {
-        var i = 0, val;
-        do {
-          val = cspSafeGetterFn(pathKeys[i++], pathKeys[i++], pathKeys[i++], pathKeys[i++],
-                                pathKeys[i++], fullExp, options)(scope, locals);
-
-          locals = undefined; // clear after first iteration
-          scope = val;
-        } while (i < pathKeysLength);
-        return val;
-      };
-    }
+    fn = cspSafeGetterFn(pathKeys, fullExp, options);
   } else {
     var code = 'var l, fn, p;\n';
     forEach(pathKeys, function(key, index) {
